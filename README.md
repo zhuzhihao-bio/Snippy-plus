@@ -1,65 +1,116 @@
-# Snippy example: clonal structure
+﻿# Snippy example: clonal structure within host 22M21
 
-Example workflow using [Snippy](https://github.com/tseemann/snippy) (v4.6.0) to assess within-host clonal structure of *Enterococcus faecalis* isolates, with **X019** as the reference.
+Example [Snippy](https://github.com/tseemann/snippy) (v4.6.0) workflow for within-host clonal structure of *Enterococcus faecalis* from host **22M21** (11 isolates).
+
+Pipeline: RefSeq reference → static mask (repeats / phage / IS) → Snippy on QC-ed FASTQ → keep ALIGNED/LENGTH ≥ 0.8 → masked core SNPs → FastTree + snp-dists → heatmap & tree. Optional Gubbins is commented in §8.
 
 ## Contents
 
 | Path | Description |
 |------|-------------|
-| `run_pipeline.sh` | End-to-end pipeline (QC → assemble → Snippy → core → tree/distances) |
-| `metadata.txt` | Sample IDs, host, species, role (reference / sample) |
-| `Results/core.txt` | snippy-core summary |
-| `Results/core.snpdists.tsv` | Pairwise core SNP distances |
-| `Results/core.tree` | FastTree Newick tree |
-| `Figures/heatmap.pdf` / `.tif` | Core SNP distance heatmap |
-| `Figures/tree.pdf` / `.tif` | Core SNP phylogeny |
-| `Rscript/plot_heatmap.R` | R script to redraw the heatmap |
+| `run_pipeline.sh` | End-to-end script (§0–7 main; §8 optional Gubbins) |
+| `metadata.txt` | Sample table (`Id`, `Species`, `Completeness`, …) |
+| `script/plot_heatmap.R` | Pairwise SNP distance heatmap |
+| `script/plot_tree.R` | Core SNP tree (tip color by cluster; ★ = support ≥ 0.7) |
+| `ref/ref.fna` | Example RefSeq reference used in this run |
+| `ref/refseq_reference_genomes.tsv` | RefSeq reference list (Species → download URL) |
+| `result/core.highAlign.txt` | Samples passing ALIGNED/LENGTH ≥ 0.8 |
+| `result/core/` | Masked core alignment, tree, distances |
+| `result/gubbins(optional)/` | Placeholder for optional Gubbins outputs |
+| `figure/` | Example `heatmap` / `tree` (pdf + png) |
+| `temp/mask/` | Example static mask intermediates |
+
+Raw reads are **not** included. Contact the author for access.
 
 ## Requirements
 
 - conda / mamba
-- `snippy=4.6.0`, `spades=4.0.0`, `fastp`, `snp-dists`, `fasttree` (Bioconda)
-- R with `ggplot2`, `scales` (for plotting)
+- Env `snippy` (versions in `run_pipeline.sh` §0):  
+  `snippy=4.6.0` `fastp=1.4.0` `snp-dists=0.8.2` `fasttree=2.2.0` `minimap2=2.28` `bedtools=2.31.1` `samtools=1.20` `phastaf=0.1.0` `isescan=1.7.3`
+- Optional env `gubbins`: `gubbins=3.4.3` `python=3.10` (separate; no bedtools)
+- Plots: R with `ggplot2`, `scales`; tree also needs `ggtree`, `treeio`, `ape`  
+  (conda: `r-ape r-patchwork bioconductor-ggtree bioconductor-treeio`)
 
 ```bash
 conda create -y -n snippy -c bioconda -c conda-forge \
-  snippy=4.6.0 spades=4.0.0 fastp snp-dists fasttree
+  snippy=4.6.0 fastp=1.4.0 snp-dists=0.8.2 fasttree=2.2.0 \
+  minimap2=2.28 bedtools=2.31.1 samtools=1.20 phastaf=0.1.0 isescan=1.7.3
+conda create -y -n gubbins -c bioconda -c conda-forge gubbins=3.4.3 python=3.10
 conda activate snippy
 ```
 
-## Data availability
+## Inputs
 
-The sequencing data used in this example are available in the Genome Sequence Archive under BioProject PRJCA058049 (run accessions are available in metadata). Place paired FASTQs as:
+Run `bash run_pipeline.sh` from the repo root. The script does `mkdir -p snippy && cd snippy`, so prepare:
 
 ```text
-raw/reads/{id}_1.fq.gz
-raw/reads/{id}_2.fq.gz
+# repo root
+run_pipeline.sh
+script/plot_heatmap.R
+script/plot_tree.R
+
+# after cd snippy/
+snippy/
+  metadata.txt
+  ref/refseq_reference_genomes.tsv
+  seq/{id}_1.fq.gz
+  seq/{id}_2.fq.gz
 ```
 
-where `{id}` is the first column of `metadata.txt`.
+`{id}` = `Id` in `metadata.txt`. Prefer QC-ed paired-end FASTQ (`--R1/--R2`). `snippy --ctgs` is shown commented in §4 (pseudo-reads; no real depth/quality).
 
-
-## Expected result (this example)
-
-Three clones within host:
-
-- **A**: X019, Y1620, Y1621, Y1624, Y1626 (2–5 SNPs)
-- **B**: Y093, Y097, Y101, Y104 (8–33 SNPs)
-- **C**: Y1464, Y1615 (102 SNPs)
-
-Between-clone distances are ~22,000–24,000 SNPs, supporting **multi-clone coexistence**.
-
-## Plotting
+## Quick start
 
 ```bash
-# from the folder that contains Results/core.snpdists.tsv
-Rscript Rscript/plot_heatmap.R Figures
+conda activate snippy
+bash run_pipeline.sh
+
+# re-plot from snippy/ workdir:
+# Rscript ../script/plot_heatmap.R result/core/core.snpdists.tsv figure
+# Rscript ../script/plot_tree.R result/core/core.tree result/core/core.snpdists.tsv figure
 ```
 
-Tree figure in `Figures/` was produced from `Results/core.tree` (e.g. with ape / iTOL).
+Steps in the script:
+
+1. **QC** — fastp  
+2. **Reference** — Species → URL in `ref/refseq_reference_genomes.tsv` → `ref/ref.fna`  
+3. **Static mask** — repeats + phage + IS → `temp/mask/mask_static.bed`  
+4. **Snippy** — per-sample calling  
+5. **Filter** — ALIGNED/LENGTH ≥ 0.8 → `result/core.highAlign.txt`  
+6. **Core SNPs** — `snippy-core --mask` → `result/core/`  
+7. **Tree / distances / plots** — FastTree + snp-dists → heatmap & tree in `figure/`  
+8. **Optional** — Gubbins (§8; plots go to `figure/gubbins`)
+
+## Outputs
+
+| Path | Description |
+|------|-------------|
+| `temp/fastp/` | QC FASTQ + reports |
+| `temp/mask/mask_static.bed` | Merged static mask |
+| `temp/core_all/` | Unfiltered snippy-core (for the ALIGNED filter) |
+| `result/snippy/{id}/` | Per-sample Snippy dirs |
+| `result/snippy_pass/` | Symlinks to samples that pass the filter |
+| `result/core.highAlign.txt` | Pass list |
+| `result/core/core.aln` / `core.full.aln` | Masked core alignments |
+| `result/core/core.tree` | FastTree Newick |
+| `result/core/core.snpdists.tsv` | Pairwise SNP distances |
+| `result/gubbins/` | Optional Gubbins outputs (§8) |
+| `figure/heatmap.pdf` / `.png` | Distance heatmap |
+| `figure/tree.pdf` / `.png` | Phylogenetic tree |
+
+## Notes
+
+- Mask BED contig names must match the reference (see commented check in §6).
+- Soft links under `result/snippy_pass/` use absolute paths; moving the project breaks them.
+- Threshold `0.8` is set in §5; or edit `result/core.highAlign.txt` and re-run masked `snippy-core`.
+- Cluster cut for tip colors matches the heatmap (pairwise SNP ≤ 100).
+- §7 (static mask) is the default endpoint; uncomment §8 only if you need recombination-aware distances.
 
 ## Citation
 
-- Snippy: Seemann T. https://github.com/tseemann/snippy
+- Snippy: Seemann T. https://github.com/tseemann/snippy  
 - This example: Zhu Zhihao (contact for reads and questions)
 
+## License
+
+Pipeline scripts and example outputs in this repository: MIT. Snippy itself is GPL-2.0.
