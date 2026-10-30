@@ -1,8 +1,0 @@
-##gff-version 3
-NZ_KB944666.1	ISEScan	insertion_sequence	272161	273702	.	+	.	ID=NZ_KB944666.1_IS_1;family=IS21;cluster=IS21_259
-NZ_KB944666.1	ISEScan	terminal_inverted_repeat	272161	272193	.	+	.	ID=NZ_KB944666.1_IS_1_TIR;parent=NZ_KB944666.1_IS_1
-NZ_KB944666.1	ISEScan	terminal_inverted_repeat	273670	273702	.	+	.	ID=NZ_KB944666.1_IS_1_TIR;parent=NZ_KB944666.1_IS_1
-NZ_KB944666.1	ISEScan	insertion_sequence	1002404	1003474	.	+	.	ID=NZ_KB944666.1_IS_2;family=IS200/IS605;cluster=IS200/IS605_96
-NZ_KB944666.1	ISEScan	insertion_sequence	1408309	1409692	.	+	.	ID=NZ_KB944666.1_IS_3;family=IS21;cluster=IS21_259
-NZ_KB944666.1	ISEScan	terminal_inverted_repeat	1408309	1408328	.	+	.	ID=NZ_KB944666.1_IS_3_TIR;parent=NZ_KB944666.1_IS_3
-NZ_KB944666.1	ISEScan	terminal_inverted_repeat	1409673	1409692	.	+	.	ID=NZ_KB944666.1_IS_3_TIR;parent=NZ_KB944666.1_IS_3
