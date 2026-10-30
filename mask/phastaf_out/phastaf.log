@@ -1,0 +1,27 @@
+[phastaf] Hello zhuzhihao
+[phastaf] You ran: /data1/zhuzhihao/miniconda3/envs/snippy/bin/phastaf --outdir temp/mask/phastaf_out ref/E_faecalis_ref.fna
+[phastaf] This is phastaf 0.1.0
+[phastaf] Written by Torsten Seemann et al
+[phastaf] Homepage is https://github.com/tseemann/phastaf
+[phastaf] Operating system is linux
+[phastaf] Perl version is v5.32.1
+[phastaf] Machine has 384 CPU cores
+[phastaf] Using any2fasta - /data1/zhuzhihao/miniconda3/envs/snippy/bin/any2fasta | any2fasta 0.8.1
+[phastaf] Using bedtools - /data1/zhuzhihao/miniconda3/envs/snippy/bin/bedtools | bedtools v2.31.1
+[phastaf] Using diamond - /data1/zhuzhihao/miniconda3/envs/snippy/bin/diamond | diamond version 2.1.10
+[phastaf] Using sort - /data1/zhuzhihao/miniconda3/envs/snippy/bin/sort | sort (GNU coreutils) 8.25
+[phastaf] Changing into folder: /data1/zhuzhihao/snippy/261028/temp/mask/phastaf_out
+[phastaf] Running: (any2fasta /data1/zhuzhihao/snippy/261028/ref/E_faecalis_ref.fna > contigs.fna) 2>&1 | sed 's/^/[any2fasta] /' | tee -a phastaf.log
+[any2fasta] This is any2fasta 0.8.1
+[any2fasta] Opening '/data1/zhuzhihao/snippy/261028/ref/E_faecalis_ref.fna'
+[any2fasta] Detected FASTA format
+[any2fasta] Read 35884 lines from '/data1/zhuzhihao/snippy/261028/ref/E_faecalis_ref.fna'
+[any2fasta] Wrote 3 sequences from FASTA file.
+[any2fasta] Processed 1 files.
+[any2fasta] Done.
+[phastaf] Running: (diamond blastx --threads 1 --query contigs.fna --db /data1/zhuzhihao/miniconda3/envs/snippy/db/phastaf.dmnd --id 75 --outfmt 6 qseqid qstart qend sseqid pident -k 0 --evalue 1E-6 --query-gencode 11 > diamond.coords) 2>&1 | sed 's/^/[diamond] /' | tee -a phastaf.log
+[phastaf] Running: (bedtools merge -i diamond.coords.bed -d 2000 -c 1 -o count > phage.bed) 2>&1 | sed 's/^/[bedtools] /' | tee -a phastaf.log
+[phastaf] Wrote: phage.bed
+[phastaf] Walltime used: 0 min 48 sec
+[phastaf] The phastaf manual is at https://github.com/tseemann/phastaf/blob/master/README.md
+[phastaf] Done.

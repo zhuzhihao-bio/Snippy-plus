@@ -1,0 +1,4 @@
+# seqid                                                      family         nIS %Genome          bps4IS          dnaLen
+NZ_KB944666.1                                                IS200/IS605      1    0.04            1071         2806553
+NZ_KB944666.1                                                IS21             2    0.10            2926         2806553
+E_faecalis_ref.fna                                           total            3    0.14            3997         2870381
