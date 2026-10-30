@@ -12,15 +12,13 @@ Pipeline: RefSeq reference → static mask (repeats / phage / IS) → Snippy on 
 | `metadata.txt` | Sample table (`Id`, `Species`, `Completeness`, …) |
 | `script/plot_heatmap.R` | Pairwise SNP distance heatmap |
 | `script/plot_tree.R` | Core SNP tree (tip color by cluster; ★ = support ≥ 0.7) |
-| `ref/ref.fna` | Example RefSeq reference used in this run |
 | `ref/refseq_reference_genomes.tsv` | RefSeq reference list (Species → download URL) |
-| `result/core.highAlign.txt` | Samples passing ALIGNED/LENGTH ≥ 0.8 |
-| `result/core/` | Masked core alignment, tree, distances |
-| `result/gubbins(optional)/` | Placeholder for optional Gubbins outputs |
-| `figure/` | Example `heatmap` / `tree` (pdf + png) |
-| `temp/mask/` | Example static mask intermediates |
+| `result/mask_static.bed` | Example static mask |
+| `result/core.tree` / `core.snpdists.tsv` | Example core tree & pairwise distances |
+| `result/core_gubbins.tree` / `core_gubbins.snpdists.tsv` | Example after optional Gubbins |
+| `figure/` | Example plots: `heatmap` / `tree` (pdf + png) |
 
-Raw reads are **not** included. Contact the author for access.
+Raw reads and large intermediates (`*.full.aln`, etc.) are **not** included. Contact the author for reads.
 
 ## Requirements
 
@@ -65,7 +63,7 @@ snippy/
 conda activate snippy
 bash run_pipeline.sh
 
-# re-plot from snippy/ workdir:
+# re-plot from snippy/ workdir (paths as written by the pipeline):
 # Rscript ../script/plot_heatmap.R result/core/core.snpdists.tsv figure
 # Rscript ../script/plot_tree.R result/core/core.tree result/core/core.snpdists.tsv figure
 ```
@@ -83,6 +81,8 @@ Steps in the script:
 
 ## Outputs
 
+When you run the pipeline, main products land under `snippy/` as:
+
 | Path | Description |
 |------|-------------|
 | `temp/fastp/` | QC FASTQ + reports |
@@ -98,12 +98,15 @@ Steps in the script:
 | `figure/heatmap.pdf` / `.png` | Distance heatmap |
 | `figure/tree.pdf` / `.png` | Phylogenetic tree |
 
+This repo ships a **small example slice** under `result/` and `figure/` (tree, distances, mask, plots) for inspection without re-running.
+
 ## Notes
 
 - Mask BED contig names must match the reference (see commented check in §6).
 - Soft links under `result/snippy_pass/` use absolute paths; moving the project breaks them.
 - Threshold `0.8` is set in §5; or edit `result/core.highAlign.txt` and re-run masked `snippy-core`.
 - Cluster cut for tip colors matches the heatmap (pairwise SNP ≤ 100).
+- Large regenerable files (`*.full.aln`) are omitted from the example package.
 - §7 (static mask) is the default endpoint; uncomment §8 only if you need recombination-aware distances.
 
 ## Citation
