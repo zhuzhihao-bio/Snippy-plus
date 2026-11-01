@@ -2,17 +2,17 @@
 
 Example [Snippy](https://github.com/tseemann/snippy) (v4.6.0) workflow for within-host clonal structure of *Enterococcus faecalis* from host **22M21** (11 isolates).
 
-Pipeline: optional GSA FASTQ download 鈫?QC 鈫?RefSeq reference 鈫?static mask (repeats / phage / IS) 鈫?Snippy 鈫?keep ALIGNED/LENGTH 鈮?0.8 鈫?masked core SNPs 鈫?FastTree + snp-dists 鈫?heatmap & tree. Optional Gubbins is commented at the end.
+Pipeline: optional GSA FASTQ download -> QC -> RefSeq reference -> static mask (repeats / phage / IS) -> Snippy -> keep ALIGNED/LENGTH >= 0.8 -> masked core SNPs -> FastTree + snp-dists -> heatmap & tree. Optional Gubbins is commented at the end.
 
 ## Contents
 
 | Path | Description |
 |------|-------------|
-| `run_pipeline.sh` | End-to-end script (download commented; 搂0鈥? main; Gubbins optional) |
-| `metadata.txt` | Sample table (`Id`, `Species`, `Bioproject`, `Run`=CRR*, 鈥? |
+| `run_pipeline.sh` | End-to-end script (download commented; section 0-7 main; Gubbins optional) |
+| `metadata.txt` | Sample table (`Id`, `Species`, `Bioproject`, `Run`=CRR*, ...) |
 | `script/plot_heatmap.R` | Pairwise SNP distance heatmap |
-| `script/plot_tree.R` | Core SNP tree (tip color by cluster; 鈽?= support 鈮?0.7) |
-| `ref/refseq_reference_genomes.tsv` | RefSeq reference list (Species 鈫?download URL) |
+| `script/plot_tree.R` | Core SNP tree (tip color by cluster; star = support >= 0.7) |
+| `ref/refseq_reference_genomes.tsv` | RefSeq reference list (Species -> download URL) |
 | `result/mask_static.bed` | Example static mask |
 | `result/core.tree` / `core.snpdists.tsv` | Example core tree & pairwise distances |
 | `result/core_gubbins.tree` / `core_gubbins.snpdists.tsv` | Example after optional Gubbins |
@@ -23,7 +23,7 @@ Raw reads are **not** shipped. Use the commented GSA download in `run_pipeline.s
 ## Requirements
 
 - conda / mamba
-- Env `snippy` (see `run_pipeline.sh` 搂0):  
+- Env `snippy` (see `run_pipeline.sh` section 0):  
   `snippy=4.6.0` `fastp=1.4.0` `snp-dists=0.8.2` `fasttree=2.2.0` `minimap2=2.28` `bedtools=2.31.1` `samtools=1.20` `phastaf=0.1.0` `isescan=1.7.3`
 - Optional download: `iseq` (`conda install -y -c bioconda -c conda-forge iseq`; Aspera optional for `-a`)
 - Optional env `gubbins`: `gubbins=3.4.3` `python=3.10` (separate; no bedtools)
@@ -56,7 +56,7 @@ snippy/
   seq/{id}_2.fq.gz
 ```
 
-`{id}` = `Id` in `metadata.txt`. Prefer paired-end FASTQ (`--R1/--R2`). `snippy --ctgs` is shown commented in 搂4 (pseudo-reads; no real depth/quality).
+`{id}` = `Id` in `metadata.txt`. Prefer paired-end FASTQ (`--R1/--R2`). `snippy --ctgs` is shown commented in section 4 (pseudo-reads; no real depth/quality).
 
 ## Step-by-step
 
@@ -69,16 +69,16 @@ mkdir -p seq temp result ref
 # put metadata.txt and ref/refseq_reference_genomes.tsv here
 ```
 
-1. **Download FASTQ (optional)** 鈥?uncomment the GSA block in the script, or place `seq/{id}_1.fq.gz` and `seq/{id}_2.fq.gz` yourself  
+1. **Download FASTQ (optional)** - uncomment the GSA block in the script, or place `seq/{id}_1.fq.gz` and `seq/{id}_2.fq.gz` yourself  
    `conda install -y -c bioconda -c conda-forge iseq`
-2. **QC** 鈥?`# 1. QC` (fastp)
-3. **Reference** 鈥?`# 2. reference genome` 鈫?`ref/ref.fna`
-4. **Static mask** 鈥?`# 3. static mask` 鈫?`temp/mask/mask_static.bed`
-5. **Snippy** 鈥?`# 4. Snippy` 鈫?`result/snippy/{id}/`
-6. **Filter** 鈥?`# 5. filter鈥 鈫?`result/core.highAlign.txt` + `result/snippy_pass/`
-7. **Core SNPs** 鈥?`# 6. core SNPs鈥 鈫?`result/core/`
-8. **Tree / distances / plots** 鈥?`# 7. tree鈥 鈫?`result/core/core.tree`, `core.snpdists.tsv`, `figure/`
-9. **Optional Gubbins** 鈥?uncomment `# 8.鈥 if needed 鈫?`result/gubbins/`, `figure/gubbins`
+2. **QC** - `# 1. QC` (fastp)
+3. **Reference** - `# 2. reference genome` -> `ref/ref.fna`
+4. **Static mask** - `# 3. static mask` -> `temp/mask/mask_static.bed`
+5. **Snippy** - `# 4. Snippy` -> `result/snippy/{id}/`
+6. **Filter** - `# 5. filter...` -> `result/core.highAlign.txt` + `result/snippy_pass/`
+7. **Core SNPs** - `# 6. core SNPs...` -> `result/core/`
+8. **Tree / distances / plots** - `# 7. tree...` -> `result/core/core.tree`, `core.snpdists.tsv`, `figure/`
+9. **Optional Gubbins** - uncomment `# 8....` if needed -> `result/gubbins/`, `figure/gubbins`
 
 Re-plot only (from `snippy/`):
 
@@ -113,7 +113,7 @@ This repo ships a **small example slice** under `result/` and `figure/` (tree, d
 - Mask BED contig names must match the reference (see commented check before masked `snippy-core`).
 - Soft links under `result/snippy_pass/` use absolute paths; moving the project breaks them.
 - Threshold `0.8` is set in the filter step; or edit `result/core.highAlign.txt` and re-run masked `snippy-core`.
-- Cluster cut for tip colors matches the heatmap (pairwise SNP 鈮?100).
+- Cluster cut for tip colors matches the heatmap (pairwise SNP <= 100).
 - Uncomment Gubbins only if you need recombination-aware distances.
 
 ## Citation
