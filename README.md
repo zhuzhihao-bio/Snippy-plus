@@ -1,4 +1,4 @@
-﻿# Snippy example: clonal structure within host 22M21
+# Snippy example: clonal structure within host 22M21
 
 Example [Snippy](https://github.com/tseemann/snippy) (v4.6.0) workflow for within-host clonal structure of *Enterococcus faecalis* from host **22M21** (11 isolates).
 
@@ -58,30 +58,34 @@ snippy/
 
 `{id}` = `Id` in `metadata.txt`. Prefer paired-end FASTQ (`--R1/--R2`). `snippy --ctgs` is shown commented in §4 (pseudo-reads; no real depth/quality).
 
-## Quick start
+## Step-by-step
+
+Work from the repo root, activate the env, then copy each block from `run_pipeline.sh` in order (do not run the whole script at once). After `mkdir -p snippy && cd snippy`, stay in `snippy/`.
 
 ```bash
 conda activate snippy
-# optional: uncomment the GSA download block in run_pipeline.sh, then:
-#   conda install -y -c bioconda -c conda-forge iseq
-bash run_pipeline.sh
-
-# re-plot from snippy/ workdir:
-# Rscript ../script/plot_heatmap.R result/core/core.snpdists.tsv figure
-# Rscript ../script/plot_tree.R result/core/core.tree result/core/core.snpdists.tsv figure
+mkdir -p snippy && cd snippy
+mkdir -p seq temp result ref
+# put metadata.txt and ref/refseq_reference_genomes.tsv here
 ```
 
-Steps in the script:
+1. **Download FASTQ (optional)** — uncomment the GSA block in the script, or place `seq/{id}_1.fq.gz` and `seq/{id}_2.fq.gz` yourself  
+   `conda install -y -c bioconda -c conda-forge iseq`
+2. **QC** — `# 1. QC` (fastp)
+3. **Reference** — `# 2. reference genome` → `ref/ref.fna`
+4. **Static mask** — `# 3. static mask` → `temp/mask/mask_static.bed`
+5. **Snippy** — `# 4. Snippy` → `result/snippy/{id}/`
+6. **Filter** — `# 5. filter…` → `result/core.highAlign.txt` + `result/snippy_pass/`
+7. **Core SNPs** — `# 6. core SNPs…` → `result/core/`
+8. **Tree / distances / plots** — `# 7. tree…` → `result/core/core.tree`, `core.snpdists.tsv`, `figure/`
+9. **Optional Gubbins** — uncomment `# 8.…` if needed → `result/gubbins/`, `figure/gubbins`
 
-1. **Download (commented)** — iSeq by `Run` (CRR*) → `seq/{id}_1/2.fq.gz`  
-2. **QC** — fastp  
-3. **Reference** — Species → URL in `ref/refseq_reference_genomes.tsv` → `ref/ref.fna`  
-4. **Static mask** — repeats + phage + IS → `temp/mask/mask_static.bed`  
-5. **Snippy** — per-sample calling  
-6. **Filter** — ALIGNED/LENGTH ≥ 0.8 → `result/core.highAlign.txt`  
-7. **Core SNPs** — `snippy-core --mask` → `result/core/`  
-8. **Tree / distances / plots** — FastTree + snp-dists → `figure/`  
-9. **Optional** — Gubbins (commented; plots → `figure/gubbins`)
+Re-plot only (from `snippy/`):
+
+```bash
+Rscript ../script/plot_heatmap.R result/core/core.snpdists.tsv figure
+Rscript ../script/plot_tree.R result/core/core.tree result/core/core.snpdists.tsv figure
+```
 
 ## Outputs
 
