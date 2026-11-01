@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
 # Snippy example: E. faecalis isolates from host 22M21
 # Author: Zhu Zhihao  Date: 2026.10.30
-# Needs: metadata.txt (tab), ref/refseq_reference_genomes.tsv, paired FASTQs:
-#   seq/{id}_1.fq.gz
-#   seq/{id}_2.fq.gz
+# Needs: metadata.txt, ref/refseq_reference_genomes.tsv
+# FASTQ: download, or place seq/{id}_1.fq.gz and seq/{id}_2.fq.gz yourself
 # Outputs: result/core/ (main), figure/, result/gubbins/ (optional)
 
 
 mkdir -p snippy && cd snippy
 mkdir -p seq temp result ref
+
+# Download GSA FASTQ (Run=CRR* in metadata.txt; rename to seq/{id}_1/2.fq.gz)
+# conda install -y -c bioconda -c conda-forge iseq
+# cut -f1,10 metadata.txt | tail -n +2 | while read id run; do
+#   if [ -s seq/${id}_1.fq.gz ] && [ -s seq/${id}_2.fq.gz ]; then continue; fi
+#   mkdir -p seq/tmp_$run
+#   (cd seq/tmp_$run && iseq -i "$run" -g -a)
+#   mv seq/tmp_$run/*_f1.fastq.gz seq/${id}_1.fq.gz
+#   mv seq/tmp_$run/*_f2.fastq.gz seq/${id}_2.fq.gz
+#   rm -rf seq/tmp_$run
+# done
 
 # 0. software
 # conda create -y -n snippy -c bioconda -c conda-forge snippy=4.6.0 fastp=1.4.0 snp-dists=0.8.2 fasttree=2.2.0 minimap2=2.28 bedtools=2.31.1 samtools=1.20 phastaf=0.1.0 isescan=1.7.3
