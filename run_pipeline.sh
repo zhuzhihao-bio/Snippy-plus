@@ -9,6 +9,12 @@
 mkdir -p snippy && cd snippy
 mkdir -p seq temp result ref
 
+# 0. Environment and software
+# conda create -y -n snippy -c bioconda -c conda-forge snippy=4.6.0 fastp=1.4.0 snp-dists=0.8.2 fasttree=2.2.0 minimap2=2.28 bedtools=2.31.1 samtools=1.20 phastaf=0.1.0 isescan=1.7.3
+# gubbins needs python<=3.10; use a separate env:
+# conda create -y -n gubbins -c bioconda -c conda-forge gubbins=3.4.3 python=3.10
+# conda activate snippy
+
 # Download GSA FASTQ (Run=CRR* in metadata.txt; rename to seq/{id}_1/2.fq.gz)
 # conda install -y -c bioconda -c conda-forge iseq
 # cut -f1,10 metadata.txt | tail -n +2 | while read id run; do
@@ -19,12 +25,6 @@ mkdir -p seq temp result ref
 #   mv seq/tmp_$run/*_f2.fastq.gz seq/${id}_2.fq.gz
 #   rm -rf seq/tmp_$run
 # done
-
-# 0. software
-# conda create -y -n snippy -c bioconda -c conda-forge snippy=4.6.0 fastp=1.4.0 snp-dists=0.8.2 fasttree=2.2.0 minimap2=2.28 bedtools=2.31.1 samtools=1.20 phastaf=0.1.0 isescan=1.7.3
-# gubbins needs python<=3.10; use a separate env:
-# conda create -y -n gubbins -c bioconda -c conda-forge gubbins=3.4.3 python=3.10
-# conda activate snippy
 
 # 1. QC
 cut -f1 metadata.txt | tail -n +2 | while read id; do
