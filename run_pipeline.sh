@@ -6,7 +6,6 @@
 #   seq/{id}_2.fq.gz
 # Outputs: result/core/ (main), figure/, result/gubbins/ (optional)
 
-set -euo pipefail
 
 mkdir -p snippy && cd snippy
 mkdir -p seq temp result ref
