@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
 # Snippy example: E. faecalis isolates from host 22M21
 # Author: Zhu Zhihao  Date: 2026.10.30
-# Needs: metadata.txt, ref/refseq_reference_genomes.tsv
+# Necessary files: metadata.txt (Prepare your own metadata. The first, fourth, and tenth columns are mandatory); ref/refseq_reference_genomes.tsv; script/plot_heatmap.R and script/plot_tree.R
 # FASTQ: download, or place seq/{id}_1.fq.gz and seq/{id}_2.fq.gz yourself
-# Outputs: result/core/ (main), figure/, result/gubbins/ (optional)
-
 
 mkdir -p snippy && cd snippy
-mkdir -p seq temp result ref
+# Move necessary files to ~/snippy
+mkdir -p seq temp result
+# The content of the directory should be: metadata.txt 
 
 # 0. Environment and software
 # conda create -y -n snippy -c bioconda -c conda-forge snippy=4.6.0 fastp=1.4.0 snp-dists=0.8.2 fasttree=2.2.0 minimap2=2.28 bedtools=2.31.1 samtools=1.20 phastaf=0.1.0 isescan=1.7.3
-# gubbins needs python<=3.10; use a separate env:
-# conda create -y -n gubbins -c bioconda -c conda-forge gubbins=3.4.3 python=3.10
+# gubbins needs python<=3.10, use a separate env: conda create -y -n gubbins -c bioconda -c conda-forge gubbins=3.4.3 python=3.10
 # conda activate snippy
 
 # Download GSA FASTQ (Run=CRR* in metadata.txt; rename to seq/{id}_1/2.fq.gz)
