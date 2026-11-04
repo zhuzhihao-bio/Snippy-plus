@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Snippy example: E. faecalis isolates from host 22M21
 # Author: Zhu Zhihao  Date: 2026.10.30
-# Necessary files: metadata.txt (Prepare your own metadata. The first, fourth, and tenth columns are mandatory); ref/refseq_reference_genomes.tsv; script/plot_heatmap.R and script/plot_tree.R
+# Necessary files: metadata.txt (Prepare your own metadata. Mandatory: Id=col1, Species=col4, GSA_Project=col9, Run=col11); ref/refseq_reference_genomes.tsv; script/plot_heatmap.R and script/plot_tree.R
 # FASTQ: download, or place seq/{id}_1.fq.gz and seq/{id}_2.fq.gz yourself
 
 mkdir -p snippy && cd snippy
@@ -14,15 +14,11 @@ mkdir -p seq temp result
 # gubbins needs python<=3.10, use a separate env: conda create -y -n gubbins -c bioconda -c conda-forge gubbins=3.4.3 python=3.10
 # conda activate snippy
 
-# Download GSA FASTQ (Run=CRR* in metadata.txt; rename to seq/{id}_1/2.fq.gz)
-# conda install -y -c bioconda -c conda-forge iseq
-# cut -f1,10 metadata.txt | tail -n +2 | while read id run; do
+# Download GSA FASTQ
+# cut -f1,9,11 metadata.txt | tail -n +2 | while read id cra run; do
 #   if [ -s seq/${id}_1.fq.gz ] && [ -s seq/${id}_2.fq.gz ]; then continue; fi
-#   mkdir -p seq/tmp_$run
-#   (cd seq/tmp_$run && iseq -i "$run" -g -a)
-#   mv seq/tmp_$run/*_f1.fastq.gz seq/${id}_1.fq.gz
-#   mv seq/tmp_$run/*_f2.fastq.gz seq/${id}_2.fq.gz
-#   rm -rf seq/tmp_$run
+#   wget -c -O seq/${id}_1.fq.gz "https://download.cncb.ac.cn/gsa5/${cra}/${run}/${run}_r1.fq.gz"
+#   wget -c -O seq/${id}_2.fq.gz "https://download.cncb.ac.cn/gsa5/${cra}/${run}/${run}_r2.fq.gz"
 # done
 
 # 1. QC
