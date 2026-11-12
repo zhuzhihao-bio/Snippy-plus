@@ -1,8 +1,9 @@
 #!/usr/bin/env Rscript
 # plot_tree.R — core SNP tree (cluster color + support stars)
-# Author: Zhu Zhihao  Date: 2026.10.30
-# Usage: Rscript plot_tree.R <tree> <snpdists.tsv> <outdir>
+# Author: Zhu Zhihao  Date: 2026.11.12
+# Usage: Rscript plot_tree.R <tree> <snpdists.tsv> <outdir> [metadata.txt]
 # Cluster cut = heatmap (SNP <= 100); star if support >= 0.7 (or 70)
+# Optional metadata: Id + Sampling time; tip labels show YYYY-MM-DD
 
 suppressPackageStartupMessages({
   library(ggplot2)
@@ -14,7 +15,7 @@ options(warn = -1)
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 3L)
-  stop("Usage: Rscript plot_tree.R <tree> <snpdists.tsv> <outdir>")
+  stop("Usage: Rscript plot_tree.R <tree> <snpdists.tsv> <outdir> [metadata.txt]")
 tree_path <- args[[1]]
 mat_path  <- args[[2]]
 outdir    <- args[[3]]
@@ -26,6 +27,20 @@ cluster_h <- 100
 boot_cut  <- 0.7
 pal <- c("#0072B2", "#E69F00", "#009E73", "#CC79A7",
          "#56B4E9", "#D55E00", "#F0E442", "#999999")
+
+# yy.m.d -> YYYY-MM-DD
+fmt_date <- function(x) {
+  x <- trimws(as.character(x))
+  vapply(strsplit(x, ".", fixed = TRUE), function(v) {
+    if (length(v) != 3L) return(paste(v, collapse = "."))
+    y <- suppressWarnings(as.integer(v[1]))
+    m <- suppressWarnings(as.integer(v[2]))
+    d <- suppressWarnings(as.integer(v[3]))
+    if (anyNA(c(y, m, d))) return(paste(v, collapse = "."))
+    if (y < 100) y <- y + 2000
+    sprintf("%04d-%02d-%02d", y, m, d)
+  }, "")
+}
 
 # --- cluster from snp-dists ---
 raw <- read.delim(mat_path, header = TRUE, check.names = FALSE,
@@ -59,6 +74,20 @@ tip_df <- data.frame(
 tip_df <- tip_df[tip_df$label %in% tr$tip.label, , drop = FALSE]
 tip_df$Cluster <- factor(tip_df$Cluster, levels = unname(cl_lab))
 
+tip_df$Date <- ""
+if (length(args) >= 4L) {
+  if (!file.exists(args[[4]])) stop("Metadata not found: ", args[[4]])
+  meta <- read.delim(args[[4]], header = TRUE, check.names = FALSE,
+                     stringsAsFactors = FALSE, quote = "", comment.char = "")
+  if (!"Id" %in% names(meta) || !"Sampling time" %in% names(meta))
+    stop("Metadata needs columns Id and Sampling time")
+  dat <- setNames(fmt_date(meta[["Sampling time"]]), as.character(meta$Id))
+  tip_df$Date <- unname(dat[tip_df$label])
+  tip_df$Date[is.na(tip_df$Date)] <- ""
+}
+tip_df$tip_lab <- ifelse(tip_df$Date == "", tip_df$label,
+                         paste(tip_df$label, tip_df$Date, sep = "  "))
+
 boot_min <- boot_cut
 if (!is.null(tr$node.label)) {
   supp <- suppressWarnings(as.numeric(tr$node.label))
@@ -78,7 +107,7 @@ p <- p +
   geom_segment(data = tips, aes(x = x, xend = xmax, y = y, yend = y),
                linetype = "dotted", linewidth = 0.3, colour = "grey60",
                inherit.aes = FALSE) +
-  geom_text(data = tips, aes(x = xmax, y = y, label = label, colour = Cluster),
+  geom_text(data = tips, aes(x = xmax, y = y, label = tip_lab, colour = Cluster),
             hjust = 0, nudge_x = xmax * 0.02, size = cex,
             family = font_family, inherit.aes = FALSE, show.legend = FALSE) +
   geom_text2(
@@ -94,7 +123,7 @@ p <- p +
   geom_treescale(x = 0, y = n + 0.6, width = signif(xmax * 0.15, 2),
                  fontsize = 4, family = font_family, offset = -0.4) +
   theme(plot.margin = margin(10, 20, 10, 10)) +
-  xlim(0, xmax * 1.45)
+  xlim(0, xmax * 1.70)
 
 dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 pdf_dev <- if (isTRUE(capabilities("cairo"))) cairo_pdf else "pdf"
