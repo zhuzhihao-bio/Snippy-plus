@@ -4,20 +4,6 @@ Example [Snippy](https://github.com/tseemann/snippy) (v4.6.0) workflow for withi
 
 Pipeline: optional GSA FASTQ download -> QC -> RefSeq reference -> static mask (repeats / phage / IS) -> Snippy -> keep ALIGNED/LENGTH >= 0.8 -> masked core SNPs -> FastTree + snp-dists -> heatmap & tree. Optional Gubbins is commented at the end.
 
-## Contents
-
-| Path | Description |
-|------|-------------|
-| `run_pipeline.sh` | End-to-end script (download commented; section 0-7 main; Gubbins optional) |
-| `metadata.txt` | Sample table (`Id`, `Species`, `Bioproject`, `Run`=CRR*, ...) |
-| `script/plot_heatmap.R` | Pairwise SNP distance heatmap |
-| `script/plot_tree.R` | Core SNP tree (tip color by cluster; star = support >= 0.7) |
-| `ref/refseq_reference_genomes.tsv` | RefSeq reference list (Species -> download URL) |
-| `result/mask_static.bed` | Example static mask |
-| `result/core.tree` / `core.snpdists.tsv` | Example core tree & pairwise distances |
-| `result/core_gubbins.tree` / `core_gubbins.snpdists.tsv` | Example after optional Gubbins |
-| `figure/` | Example plots: `heatmap` / `tree` (pdf + png) |
-
 Raw reads are **not** shipped. Use the commented GSA download in `run_pipeline.sh`, or place your own FASTQs.
 
 ## Requirements
