@@ -95,7 +95,7 @@ snp-dists result/core/core.aln > result/core/core.snpdists.tsv
 # heatmap (needs R: ggplot2, scales)
 Rscript ../script/plot_heatmap.R result/core/core.snpdists.tsv figure
 # tree (needs R: ggplot2, ggtree, treeio, ape)
-Rscript ../script/plot_tree.R result/core/core.tree result/core/core.snpdists.tsv figure
+Rscript script/plot_tree.R result/core/core.tree result/core/core.snpdists.tsv figure metadata.txt
 
 # 8. optional: Gubbins then tree/distances
 # mkdir -p result/gubbins
@@ -107,4 +107,4 @@ Rscript ../script/plot_tree.R result/core/core.tree result/core/core.snpdists.ts
 # FastTree -gtr -nt result/gubbins/core_gubbins.aln > result/gubbins/core_gubbins.tree
 # snp-dists result/gubbins/core_gubbins.aln > result/gubbins/core_gubbins.snpdists.tsv
 # Rscript ../script/plot_heatmap.R result/gubbins/core_gubbins.snpdists.tsv figure/gubbins
-# Rscript ../script/plot_tree.R result/gubbins/core_gubbins.tree result/gubbins/core_gubbins.snpdists.tsv figure/gubbins
+# Rscript ../script/plot_tree.R result/gubbins/core_gubbins.tree result/gubbins/core_gubbins.snpdists.tsv figure/gubbins metadata.txt
